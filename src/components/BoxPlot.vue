@@ -2,43 +2,55 @@
   <v-card class="ma-2">
     <v-card-title>
       <span v-text="title" />
+      <v-spacer></v-spacer>
+      <v-tooltip left>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" @click="dialog=true">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <span>Percentiles</span>
+      </v-tooltip>
     </v-card-title>
 
     <v-card-text>
-      <div>
-        <div class="mx-2 d-flex flex-row justify-start">
-          <span class="me-5">95%</span>
-          <span v-text="p95" />
-        </div>
-        <v-divider />
-      </div>
-
-      <div>
-        <div class="mx-2 d-flex flex-row justify-start">
-          <span class="me-5">90%</span>
-          <span v-text="p90" />
-        </div>
-        <v-divider />
-      </div>
-
-      <div>
-        <div class="mx-2 d-flex flex-row justify-start">
-          <span class="me-5">85%</span>
-          <span v-text="p85" />
-        </div>
-        <v-divider />
-      </div>
-
-      <div>
-        <div class="mx-2 d-flex flex-row justify-start">
-          <span class="me-5">80%</span>
-          <span v-text="p80" />
-        </div>
-        <v-divider />
-      </div>
-
       <Plotly :data="data" :layout="layout" :display-mode-bar="false" />
     </v-card-text>
+
+    <v-dialog v-model="dialog" width="500" scrollable>
+      <v-card>
+        <v-card-title>
+          <span>{{title}}'s Percentiles</span>
+          <v-spacer></v-spacer>
+          <v-tooltip left>
+            <template v-slot:activator="{ on }">
+              <v-btn icon color="red" v-on="on" @click="dialog=false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+            <span>Close</span>
+          </v-tooltip>
+        </v-card-title>
+        <v-card-text>
+          <v-simple-table dense>
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">Percentage</th>
+                  <th class="text-left">Percentile</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in percentiles" :key="item.percentage">
+                  <td>{{ item.percentage }} %</td>
+                  <td>{{ item.percentile }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -56,6 +68,7 @@ export default {
   },
   data() {
     return {
+      dialog: false,
       data: [
         {
           y: this.source,
@@ -70,11 +83,16 @@ export default {
       layout: {
         width: 300
       },
-      p95: percentile(95, this.source),
-      p90: percentile(90, this.source),
-      p85: percentile(85, this.source),
-      p80: percentile(80, this.source)
+      percentiles: []
     };
+  },
+  created() {
+    for (let i = 100; i >= 0; i -= 5) {
+      this.percentiles.push({
+        percentage: i,
+        percentile: percentile(i, this.source)
+      });
+    }
   }
 };
 </script>

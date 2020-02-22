@@ -33,7 +33,7 @@
           />
         </div>
 
-        <span class="ma-2 display-3" v-if="headers.length == 0">No Data Yet!</span>
+        <span class="ma-2" v-if="headers.length == 0" style="font-size:48px;font-weight:300;letter-spacing:0.5em;word-spacing:0.1em;">No Data Yet !</span>
         <v-btn
           class="ma-5"
           v-if="headers.length == 0"
